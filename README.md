@@ -2,11 +2,11 @@
 
 ### Trend, market structure and fundamentals — a Zipline / pyfolio backtest study
 
-*Veljko Perovic— commodity analyst. Built 2026.*
+*Veljko Perovic — commodity analyst. Built 2026.*
 
 ------------------------------------------------------------------------
 
-**TL;DR.** I take a single instrument — NYMEX natural gas (NG) — and look at it from three angles: **price trend**, **curve structure (carry)**, and **fundamentals** (weather and storage). Every idea is turned into a systematic, vol-targeted rule and backtested over 2000–2026 with one cost model, one rolling convention and one risk framework, so the results are directly comparable. Individually the edges are modest and fat-tailed. Combined into a **handcrafted book**, they give a Sharpe of 0.38, a −29 % max drawdown and a p-value of 2.5 % — the whole point of the exercise.
+**TL;DR.** I take a single instrument — NYMEX natural gas (NG) — and look at it from three angles: **price trend**, **curve structure (carry)**, and **fundamentals** (weather and storage). Every idea is turned into a systematic, vol-targeted rule and backtested over 2000–2026 with one cost model, one rolling convention and one risk framework, so the results are directly comparable. Individually the edges are modest and fat-tailed. Combined into a **handcrafted book** they give a Sharpe of 0.38, a −29 % max drawdown and a p-value of 2.5 %. That is **below the best single rule (0.48)** — but picking that rule today is hindsight; the value of the book is robustness: it roughly halves the worst drawdown, and no single rule carries it.
 
 > **Note on data.** Raw futures prices are scraped from Barchart and are *not* redistributed here for licensing reasons. EIA storage and NOAA weather data are public. The repo ships the **results** (`results/Results.xlsx`, the equity and monthly-return series produced by the backtests) and the code, so every chart and table below can be regenerated without the price data.
 
@@ -31,7 +31,7 @@
 
 In this project I want to (1) show my methodology and way of thinking, and (2) show that I am more than a niche (dairy) analyst.
 
-I deliberately avoided agricultural commodities — that is what I encounter every day at work. I opted for an energy instrument instead and chose natural gas, which I had heard is easy to make money on. A former Amaranth Advisors trader assured me so. *(/s)*
+I deliberately avoided agricultural commodities — that is what I encounter every day at work. I opted for an energy instrument instead and chose natural gas, which I had heard is easy to make money on. A former Amaranth Advisors trader assured me so.
 
 In general I believe in an **idea-first approach** - where market properties (trend and structure) are combined with fundamentals. I am both an agnostic and a believer: I do believe that understanding and trading around fundamentals can give better risk-adjusted returns, but I also know that, through overconfidence and bias, we tend to explain more price action than can actually be explained.
 
@@ -91,7 +91,7 @@ Each strategy below is followed by its equity / drawdown / rolling-Sharpe chart 
 
 The beta strategy will not be part of the portfolio; I use it to measure the other strategies against. The idea is as old as trading: we throw the efficient market theory in the garbage bin and buy when EWMA-16 crosses above EWMA-64. We sell when it crosses below. Each time that happens we allocate 1 % of the portfolio to natural-gas futures.
 
-**Why should it work?** We are betting that returns have a memory. One explanation is prospect theory; my own is that the *economic variables that drive prices also have a memory*. A cow that gives us a lot of milk today is likely to give us a lot of milk tomorrow aswell, low stocks today tend to mean low stocks tomorrow, and so on. The more a price has the ability to influence those drivers back quickly, the less trendy the market can be.
+**Why should it work?** We are betting that returns have a memory. One explanation is prospect theory; my own is that the *economic variables that drive prices also have a memory*. A cow that gives us a lot of milk today is likely to give us a lot of milk tomorrow as well, low stocks today tend to mean low stocks tomorrow, and so on. The more a price has the ability to influence those drivers back quickly, the less trendy the market can be.
 
 ![Beta — plain 16/64 cross](images/strategies/s01_beta.png)
 
@@ -112,7 +112,7 @@ The beta strategy will not be part of the portfolio; I use it to measure the oth
 | Beta to 16/64 benchmark | 1.000 |
 | Alpha vs benchmark (ann.) | 0.00% |
 
-**My read.** Beta looks surpisingly decent looking at Sharpe only. Tails are very fat and skew is not too impressive considering we are trend-following.
+**My read.** Beta looks surprisingly decent looking at Sharpe only. Tails are very fat and skew is not too impressive considering we are trend-following.
 
 ## 2. EWMAC 16/64
 
@@ -140,7 +140,7 @@ I borrow this strategy from Rob Carver. It works like the beta rule, except we a
 | Beta to 16/64 benchmark | 0.935 |
 | Alpha vs benchmark (ann.) | 1.08% |
 
-**My read.** Sharpe is marginally higher and we get 1.22% alpha verus it’s less sophisticated cousin. Skew looks a bit better. Passes the t-test which signals robustness.
+**My read.** Sharpe is marginally higher and we get 1.22% alpha versus its less sophisticated cousin. Skew looks a bit better. Passes the t-test which signals robustness.
 
 ## 3–7. EWMAC — different speeds
 
@@ -168,7 +168,7 @@ I borrow this strategy from Rob Carver. It works like the beta rule, except we a
 | Beta to 16/64 benchmark | 0.405 | 0.602 | 0.803 | 0.935 | 0.876 | 0.701 |
 | Alpha vs benchmark (ann.) | -1.57% | -1.20% | 0.18% | 1.08% | 1.19% | 1.82% |
 
-**My read** 2/8 and 4/16 are quite fast. They have a positive skew as they try to cut losses quickly. The very big turnover is not really offset by high returns as they come with lower expected returns and an underwhelming Sharpe. We have to be careful with those 2. 8/32 and 16/64 look to be the best pairs with nice skew and upper tails bigger than lower tails. 32/128 and 64/256 are almost as slow ass investsing and lose all the positive skew from the faster rules. There is a nice annual return and a decent Sharpe though. Costs are very low as our turnover is low.
+**My read** 2/8 and 4/16 are quite fast. They have a positive skew as they try to cut losses quickly. The very big turnover is not really offset by high returns as they come with lower expected returns and an underwhelming Sharpe. We have to be careful with those 2. 8/32 and 16/64 look to be the best pairs with nice skew and upper tails bigger than lower tails. 32/128 and 64/256 are almost as slow as investing and lose all the positive skew from the faster rules. There is a nice annual return and a decent Sharpe though. Costs are very low as our turnover is low.
 
 ## 8–11. Carry — trading the curve
 
@@ -234,7 +234,7 @@ Natural-gas markets in winter are probably influenced by *forecasts* before a co
 | Beta to 16/64 benchmark | 0.144 |
 | Alpha vs benchmark (ann.) | 4.17% |
 
-**My read.** Cummulative returns look beautiful, as stability is at a whooping 95%. Seems to perform in different market conditions. Skew at 0.93 and some very fat tails. Passes the t-test with ease. She is a keeper.
+**My read.** Cumulative returns look beautiful, as stability is at a whopping 95%. Seems to perform in different market conditions. Skew at 0.93 and some very fat tails. Passes the t-test with ease. She is a keeper.
 
 ## 13–14. Inventory — trading the gas balance
 
@@ -271,7 +271,7 @@ I trade both versions: the after-release rule on Thursday’s number itself, and
 **Three things stand out:**
 
 - The **fundamental rules are the strongest**, and are weakly correlated to trend — that is where most of the diversification comes from.
-- **Carry is the weakest** idea for NG. It only works when restricted to the off-season months, and the all-year version has a massive−78 % drawdown.
+- **Carry is the weakest** idea for NG. It only works when restricted to the off-season months, and the all-year version has a massive −78 % drawdown.
 - Every strategy has a **fat left tail** (lower tail ratio \> 1.5)
 
 ------------------------------------------------------------------------
@@ -302,7 +302,7 @@ The 13 traded strategies (the beta benchmark is excluded) are combined into a NG
 | Fundamentals | EIA storage | 8% |
 | Fundamentals | storage nowcast | 8% |
 
-Sleeve split ≈ **50 % trend / 30 % fundamentals / 20 % carry** (the combiner normalises the weights to sum to 1). Short term trends have costs that are too high. Still, we leave them for the sake of diversification and risk manager that they should have. The slowest rules we weigh less due to fattest left tail and less favorable skew. Mid-paced trend rules get the highest %. All carry rules get 5% despite underperformance of all-year carry due to simplicity and lower possibility of overfitting. More tests are needed to determine that the advantage of summer only is statistically significant. GWDD and storage each get 15%.
+Sleeve split ≈ **50 % trend / 30 % fundamentals / 20 % carry** (the combiner normalises the weights to sum to 1). Short term trends have costs that are too high. Still, we leave them for the sake of diversification and risk manager that they should have. The slowest rules we weigh less due to fattest left tail and less favorable skew. Mid-paced trend rules get the highest %. All carry rules get 5% despite underperformance of all-year carry due to simplicity and lower possibility of overfitting. More tests are needed to determine that the advantage of summer only is statistically significant. GWDD weather gets 15%; each of the two storage rules 8%.
 
 ![Combined book equity and drawdown](images/portfolio/equity_drawdown.png)
 
@@ -327,7 +327,7 @@ Sleeve split ≈ **50 % trend / 30 % fundamentals / 20 % carry** (the combiner n
 | Beta to 16/64 benchmark | 0.567 |
 | Alpha vs benchmark (ann.) | 1.20% |
 
-**My read.** Results of trend following were the best in 2000. Removing this year reduces the trend rules Sharpe by a significant 0.1. Combined rules for gas manages to keep drawdowns under control, has 57% beta to benchmark, higher alpha and reduced volatility from 19% to 13%. It does not lift the Sharpe above the best single strategy — the combined Sharpe (0.38) is a little **below** the best sleeve (0.48). What it does is make the whole thing much steadier: the worst drawdown roughly halves versus the trend sleeve (−56 % → −29 %), the all-year carry’s −78 % loss is no longer felt on its own, and the equity curve is smoother. The correlation matrix shows why: carry and weather barely move with trend, while the six EWMAC speeds move together — so most of the trend sleeve is really one bet, sized carefully.
+**My read.** Trend following's best year was 2000; excluding it cuts the trend sleeve Sharpe from 0.32 to 0.22 (a significant 0.10). Combined rules for gas manages to keep drawdowns under control, has 57% beta to benchmark, higher alpha and reduced volatility from 19% to 13%. It does not lift the Sharpe above the best single strategy — the combined Sharpe (0.38) is a little **below** the best single rule (0.48). What it does is make the whole thing much steadier: the worst drawdown roughly halves versus the trend sleeve (−56 % → −29 %), the all-year carry’s −78 % loss is no longer felt on its own, and the equity curve is smoother. The correlation matrix shows why: carry and weather barely move with trend, while the six EWMAC speeds move together — so most of the trend sleeve is really one bet, sized carefully.
 
 ------------------------------------------------------------------------
 
@@ -335,8 +335,8 @@ Sleeve split ≈ **50 % trend / 30 % fundamentals / 20 % carry** (the combiner n
 
 1.  **Portfolio optimization.** It is tough to define a clear line between portfolio optimization and portfolio overfitting, which is why I’ve avoided it. I am not saying that a more skilled veteran would also struggle. The strategy weights are handcrafted using common reason. We use trend (50%) to show us the way and carry + fundamental rules to stop us from riding the wrong trends.
 2.  **Only 4 of 14 runs clear the p \< 2.5 % bar.** As far as validating statistical significance of Sharpe with a t-test, we’d need more history to prove the edge for low-Sharpe, high vol rules.
-3.  **Overfitting risk on the storage/weather thresholds**. Tried to avoid it and ran only a handfew of versions, but one most be vigilant about overfitting.
-4.  **We need to examine historical costs**. In general, I don’t think one tick on fourth contract is too optimistic on average. But should be tested over time in different volatility and liquidity regimes.
+3.  **Overfitting risk on the storage/weather thresholds**. Tried to avoid it and ran only a handful of versions, but one must be vigilant about overfitting.
+4.  **We need to examine historical costs**. In general, I don’t think one tick on the third contract is too optimistic on average. But should be tested over time in different volatility and liquidity regimes.
 5.  **We should think about some universal risk management rules**. Should we ever be short natgas if brent crude is making a limit up move? Should we ever be long if there is a historic cold snap? Probably not, more tests needed.
 
 ## Repository layout
