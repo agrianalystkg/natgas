@@ -47,13 +47,17 @@ In general I believe in an **idea-first approach** - where market properties (tr
 
 **Universe.** A single root: **NG** (NYMEX natural gas), traded as a continuous, back-adjusted series.
 
-**Roll convention.** We always trade the **rolling third contract**: the position is held in the third contract of the curve and, as each contract approaches expiry, it is rolled forward into the new third contract. Roll legs are charged a discounted spread (see *Costs* below).
+**Roll convention.** We always trade the **rolling fourth contract**: the position is held in the fourth contract of the curve and, as each contract approaches expiry, it is rolled forward into the new fourth contract. Roll legs are charged a discounted spread (see *Costs* below).
 
 **Position sizing.** Every strategy targets **1 % of account equity as daily P&L volatility** per position:
 
-    contracts = (equity × 1%) / (σ_daily × price_multiplier) × conviction
+$$\text{contracts}_t \;=\; \frac{\text{equity}_t \times 1\%}{\sigma_{daily,t} \times \text{multiplier}} \times \text{conviction}_t, \qquad \text{conviction}_t \in [-2,\,+2]$$
 
-where `conviction` is the signal’s strength, capped at ±2. Daily σ blends a fast EWMA (span 32) with a slow 1,260-day estimate (0.7 / 0.3). Positions are only adjusted when the target changes by **more than 15 %**, which stops the strategy overtrading (and paying the costs that come with it).
+Daily σ blends a fast and a slow estimate:
+
+$$\sigma_{daily,t} \;=\; 0.7\,\sigma^{\text{EWM}(32)}_t \;+\; 0.3\,\sigma^{\text{roll}(1260)}_t$$
+
+where `conviction` is the signal’s strength (capped at ±2) and positions are only adjusted when the target changes by **more than 15 %** — which stops the strategy overtrading (and paying the costs that come with it).
 
 **Costs.** Every fill is charged the full spread, and commission is charged per contract. For NG the backtest uses:
 
@@ -91,26 +95,23 @@ Each strategy below is followed by its equity / drawdown / rolling-Sharpe chart 
 
 The beta strategy will not be part of the portfolio; I use it to measure the other strategies against. The idea is as old as trading: we throw the efficient market theory in the garbage bin and buy when EWMA-16 crosses above EWMA-64. We sell when it crosses below. Each time that happens we allocate 1 % of the portfolio to natural-gas futures.
 
+**Signal.** (subscript = the EMA span, in days)
+
+$$\text{signal}_t = \operatorname{sign}\!\big(\mathrm{EWMA}_{16}(P_t) - \mathrm{EWMA}_{64}(P_t)\big)$$
+
 **Why should it work?** We are betting that returns have a memory. One explanation is prospect theory; my own is that the *economic variables that drive prices also have a memory*. A cow that gives us a lot of milk today is likely to give us a lot of milk tomorrow as well, low stocks today tend to mean low stocks tomorrow, and so on. The more a price has the ability to influence those drivers back quickly, the less trendy the market can be.
 
 ![Beta — plain 16/64 cross](images/strategies/s01_beta.png)
 
-| Metric | Value |
-|---|---|
-| Annual return (net) | 4.63% |
-| Annual volatility | 19.21% |
-| Sharpe ratio | 0.33 |
-| Sortino ratio | 0.38 |
-| Max drawdown | -43.30% |
-| Average drawdown | -20.77% |
-| Skew (monthly) | 1.06 |
-| Lower tail ratio (1/30 ÷ 4.43) | 2.977 |
-| Upper tail ratio (99/70 ÷ 4.43) | 2.895 |
-| Stability (R² of log-equity) | 0.79 |
-| t-statistic | 1.727 |
-| p-value (one-tailed) | 4.21% |
-| Beta to 16/64 benchmark | 1.000 |
-| Alpha vs benchmark (ann.) | 0.00% |
+| Metric | Value | Metric | Value |
+|---|---|---|---|
+| Annual return (net) | 4.63% | Lower tail ratio (1/30 ÷ 4.43) | 2.977 |
+| Annual volatility | 19.21% | Upper tail ratio (99/70 ÷ 4.43) | 2.895 |
+| Sharpe ratio | 0.33 | Stability (R² of log-equity) | 0.79 |
+| Sortino ratio | 0.38 | t-statistic | 1.727 |
+| Max drawdown | -43.30% | p-value (one-tailed) | 4.21% |
+| Average drawdown | -20.77% | Beta to 16/64 benchmark | 1.000 |
+| Skew (monthly) | 1.06 | Alpha vs benchmark (ann.) | 0.00% |
 
 **My read.** Beta looks surprisingly decent looking at Sharpe only. Tails are very fat and skew is not too impressive considering we are trend-following.
 
@@ -118,27 +119,24 @@ The beta strategy will not be part of the portfolio; I use it to measure the oth
 
 I borrow this strategy from Rob Carver. It works like the beta rule, except we also scale our conviction. A bare cross of 16 over 64 does not mean much if the market is going sideways, so to measure how much momentum the market is really showing on a multi-week horizon, we measure **how many σ units EWMA-16 leads EWMA-64** (or trails it). 2.5σ is the average for most commodity markets and gets an average-sized position; 1.25σ gets 50 % less size; 5σ brings us to the max. I cap positions at ±2 to avoid being oversized and to avoid fat left tails — which is especially painful when the volatility regime changes.
 
+**Signal.** Here $fast$ / $slow$ are the EMA spans in days (e.g. 16 / 64).
+
+$$E_t = \mathrm{EWMA}_{fast}(P_t) - \mathrm{EWMA}_{slow}(P_t), \qquad \text{conviction}_t = \operatorname{clip}\!\left(\frac{E_t \,/\, \sigma_{E,t}}{2.5},\;-2,\;+2\right)$$
+
 ![EWMAC 16/64 — market, position and equity](images/official/s02_ewmac_16_64/page1.png)
 
-| Metric | Value |
-|---|---|
-| Annual return (net) | 5.40% |
-| Annual volatility | 19.16% |
-| Sharpe ratio | 0.37 |
-| Sortino ratio | 0.44 |
-| Max drawdown | -56.49% |
-| Average drawdown | -23.97% |
-| Skew (monthly) | 1.23 |
-| Lower tail ratio (1/30 ÷ 4.43) | 2.811 |
-| Upper tail ratio (99/70 ÷ 4.43) | 2.915 |
-| Stability (R² of log-equity) | 0.65 |
-| t-statistic | 1.926 |
-| p-value (one-tailed) | 2.71% |
-| Gross Sharpe (before costs) | 0.39 |
-| Costs (Sharpe units) | 0.02 |
-| Annual turnover | 16.4x / yr |
-| Beta to 16/64 benchmark | 0.935 |
-| Alpha vs benchmark (ann.) | 1.08% |
+| Metric | Value | Metric | Value |
+|---|---|---|---|
+| Annual return (net) | 5.40% | Lower tail ratio (1/30 ÷ 4.43) | 2.811 |
+| Annual volatility | 19.16% | Upper tail ratio (99/70 ÷ 4.43) | 2.915 |
+| Sharpe ratio | 0.37 | Stability (R² of log-equity) | 0.65 |
+| Sortino ratio | 0.44 | t-statistic | 1.926 |
+| Max drawdown | -56.49% | p-value (one-tailed) | 2.71% |
+| Average drawdown | -23.97% | Gross Sharpe (before costs) | 0.39 |
+| Skew (monthly) | 1.23 | Costs (Sharpe units) | 0.02 |
+|  |  | Annual turnover | 16.4x / yr |
+|  |  | Beta to 16/64 benchmark | 0.935 |
+|  |  | Alpha vs benchmark (ann.) | 1.08% |
 
 **My read.** Sharpe is marginally higher and we get 1.22% alpha versus its less sophisticated cousin. Skew looks a bit better. Passes the t-test which signals robustness.
 
@@ -172,13 +170,21 @@ I borrow this strategy from Rob Carver. It works like the beta rule, except we a
 
 ## 8–11. Carry — trading the curve
 
-8: Carry — convenience yield, premium. It has many names across industries and many interpretations: the price difference that keeps the supply chain running (paying people to store the product we don’t need), a weather premium, future expectations of the market, seasonality. All of these explanations are true, but we can’t know which one is true at any given moment — and we don’t need to. I borrow another rule from Rob Carver: put **annualised carry** (here between the 3rd and 2nd rolling NG contract) in relation to annualised vol to get an **implied Sharpe** of a trade in which the spot stays the same and the deferred slowly comes to us. An implied annual Sharpe of 0.35 gives an average position; 0.7 doubles it; and, as always, we cap there.
+8: Carry — convenience yield, premium. It has many names across industries and many interpretations: the price difference that keeps the supply chain running (paying people to store the product we don’t need), a weather premium, future expectations of the market, seasonality. All of these explanations are true, but we can’t know which one is true at any given moment — and we don’t need to. I borrow another rule from Rob Carver: put **annualised carry** (here the spread between the 3rd and 4th rolling NG contracts) in relation to annualised vol to get an **implied Sharpe** of a trade in which the spot stays the same and the deferred slowly comes to us. An implied annual Sharpe of 0.35 gives an average position; 0.7 doubles it; and, as always, we cap there.
 
 9: Commodity markets have periods of higher volatility in which it can be risky to wait for the carry to come to you (harvest in ags, winter in NG, the milk flush in dairy). That is why I also run a summer-only version, active for just the six off-season demand months (May–October).
 
 10+11: Trading carry is nice, but as mentioned, one function of market structure is to adjust futures prices for (often strong) seasonal changes in supply and demand — new-crop MATIF wheat is frequently inverted versus old crop for exactly that reason. Talking wheat, let’s imagine an annualized Matif wheat spread of -120 while annualized vol stands at 240: that is an interesting annual Sharpe of 0.5. But what if the median spread for that time of year is actually −180? Suddenly −120 looks tight. Is spot demand strong? Are stocks tightening? Are we going to invert? I don’t want to overthink all those possibilities, so I use a seasonally adjusted rule that measures the current calendar spread against the **median structure over the previous 10 years during this month of the year**.
 
 All in, I run four carry variants: raw and seasonally adjusted, each traded all year and summer-only. The summer-only versions score better, but I keep the all-year ones for robustness and diversification.
+
+**Signal.** The curve is read as the price difference between the **3rd and 4th** contracts (offsets 2 and 3; we trade the 4th). They sit one month apart, so ×12 annualises the spread; dividing by the traded contract's annualised volatility turns it into the **implied Sharpe** of holding that spread:
+
+$$\text{implied } SR_t = \frac{12 \times \big(P^{(3)}_t - P^{(4)}_t\big)}{\sigma^{\text{ann}}_t}$$
+
+A 0.35 implied Sharpe gets an average position and 0.7 doubles it (capped at ±2); the sign is the sign of the spread. The seasonally adjusted variant compares the same spread with its own norm for that calendar month over the past 10 years:
+
+$$\text{adjusted spread}_t = \big(P^{(3)}_t - P^{(4)}_t\big) \;-\; \operatorname{median}_{10y}\Big(P^{(3)} - P^{(4)} \;\Big|\; \text{same month}\Big)$$
 
 ![Carry variants — cumulative return and Sharpe](images/strategies/carry_variants.png)
 
@@ -208,31 +214,28 @@ All in, I run four carry variants: raw and seasonally adjusted, each traded all 
 
 The idea: during winter, very cold weather raises gas demand and prices; mild weather does the reverse. For a material move in supply/demand, the extreme weather has to persist. Weather itself also has a memory of a couple of days, so a cold week can linger. Rule: if, over the last 7 days, we have averaged 2 °C below normal, open an average long; 4 °C below doubles it; 1 °C below opens a small position — and the reverse for shorts. We are only trading this strategy in the heating season (November-April).
 
+**Signal.**
+
+$$\text{anomaly}_t = \operatorname{SMA}_{7}\big(\text{GWDD}_t - \text{normal}\big), \qquad \text{conviction}_t = \operatorname{clip}\!\left(\frac{\text{anomaly}_t}{2\,^\circ\text{C}},\;-2,\;+2\right)$$
+
 I’ve validated the rule by playing with slightly longer and shorter number of days and degrees. The change in config does not materially change the backtest outcome.
 
 Natural-gas markets in winter are probably influenced by *forecasts* before a cold snap even happens. I don’t have that data, and I’m not sure trading at such a frequency would fit the portfolio I’m building, so this trades the realised anomaly.
 
 ![Weather — market, position and equity](images/official/s12_weather/page1.png)
 
-| Metric | Value |
-|---|---|
-| Annual return (net) | 4.33% |
-| Annual volatility | 11.84% |
-| Sharpe ratio | 0.42 |
-| Sortino ratio | 0.57 |
-| Max drawdown | -38.16% |
-| Average drawdown | -7.57% |
-| Skew (monthly) | 0.93 |
-| Lower tail ratio (1/30 ÷ 4.43) | 2.281 |
-| Upper tail ratio (99/70 ÷ 4.43) | 2.986 |
-| Stability (R² of log-equity) | 0.95 |
-| t-statistic | 2.168 |
-| p-value (one-tailed) | 1.51% |
-| Gross Sharpe (before costs) | 0.47 |
-| Costs (Sharpe units) | 0.05 |
-| Annual turnover | 74.2x / yr |
-| Beta to 16/64 benchmark | 0.144 |
-| Alpha vs benchmark (ann.) | 4.17% |
+| Metric | Value | Metric | Value |
+|---|---|---|---|
+| Annual return (net) | 4.33% | Lower tail ratio (1/30 ÷ 4.43) | 2.281 |
+| Annual volatility | 11.84% | Upper tail ratio (99/70 ÷ 4.43) | 2.986 |
+| Sharpe ratio | 0.42 | Stability (R² of log-equity) | 0.95 |
+| Sortino ratio | 0.57 | t-statistic | 2.168 |
+| Max drawdown | -38.16% | p-value (one-tailed) | 1.51% |
+| Average drawdown | -7.57% | Gross Sharpe (before costs) | 0.47 |
+| Skew (monthly) | 0.93 | Costs (Sharpe units) | 0.05 |
+|  |  | Annual turnover | 74.2x / yr |
+|  |  | Beta to 16/64 benchmark | 0.144 |
+|  |  | Alpha vs benchmark (ann.) | 4.17% |
 
 **My read.** Cumulative returns look beautiful, as stability is at a whopping 95%. Seems to perform in different market conditions. Skew at 0.93 and some very fat tails. Passes the t-test with ease. She is a keeper.
 
@@ -243,6 +246,10 @@ Natural-gas markets in winter are probably influenced by *forecasts* before a co
 14: Same storage idea, but instead of waiting for Thursday’s number I use a **nowcast** of it built from the latest weather-driven demand and flows, so the position can be put on *before* the release; on Monday.
 
 I trade both versions: the after-release rule on Thursday’s number itself, and the nowcast, which can position ahead of it.
+
+**Signal.**
+
+$$y_t = \frac{\text{stocks}_t - \text{stocks}_{\,t-1y}}{\text{stocks}_{\,t-1y}}, \qquad \text{conviction}_t = \operatorname{clip}\!\left(\frac{-y_t}{10\%},\;-2,\;+2\right)$$
 
 ![Inventory variants — cumulative return (log)](images/strategies/inventory_variants.png)
 
@@ -310,22 +317,15 @@ Sleeve split ≈ **50 % trend / 30 % fundamentals / 20 % carry** (the combiner n
 
 ![Annual returns and rolling Sharpe](images/portfolio/annual_and_rolling_sharpe.png)
 
-| Metric | Value |
-|---|---|
-| Annual return (net) | 4.11% |
-| Annual volatility | 12.89% |
-| Sharpe ratio | 0.38 |
-| Sortino ratio | 0.49 |
-| Max drawdown | -29.23% |
-| Average drawdown | -14.48% |
-| Skew (monthly) | 1.32 |
-| Lower tail ratio (1/30 ÷ 4.43) | 3.000 |
-| Upper tail ratio (99/70 ÷ 4.43) | 2.777 |
-| Stability (R² of log-equity) | 0.85 |
-| t-statistic | 1.962 |
-| p-value (one-tailed) | 2.49% |
-| Beta to 16/64 benchmark | 0.567 |
-| Alpha vs benchmark (ann.) | 1.20% |
+| Metric | Value | Metric | Value |
+|---|---|---|---|
+| Annual return (net) | 4.11% | Lower tail ratio (1/30 ÷ 4.43) | 3.000 |
+| Annual volatility | 12.89% | Upper tail ratio (99/70 ÷ 4.43) | 2.777 |
+| Sharpe ratio | 0.38 | Stability (R² of log-equity) | 0.85 |
+| Sortino ratio | 0.49 | t-statistic | 1.962 |
+| Max drawdown | -29.23% | p-value (one-tailed) | 2.49% |
+| Average drawdown | -14.48% | Beta to 16/64 benchmark | 0.567 |
+| Skew (monthly) | 1.32 | Alpha vs benchmark (ann.) | 1.20% |
 
 **My read.** Trend following's best year was 2000; excluding it cuts the trend sleeve Sharpe from 0.32 to 0.22 (a significant 0.10). Combined rules for gas manages to keep drawdowns under control, has 57% beta to benchmark, higher alpha and reduced volatility from 19% to 13%. It does not lift the Sharpe above the best single strategy — the combined Sharpe (0.38) is a little **below** the best single rule (0.48). What it does is make the whole thing much steadier: the worst drawdown roughly halves versus the trend sleeve (−56 % → −29 %), the all-year carry’s −78 % loss is no longer felt on its own, and the equity curve is smoother. The correlation matrix shows why: carry and weather barely move with trend, while the six EWMAC speeds move together — so most of the trend sleeve is really one bet, sized carefully.
 
@@ -336,7 +336,7 @@ Sleeve split ≈ **50 % trend / 30 % fundamentals / 20 % carry** (the combiner n
 1.  **Portfolio optimization.** It is tough to define a clear line between portfolio optimization and portfolio overfitting, which is why I’ve avoided it. I am not saying that a more skilled veteran would also struggle. The strategy weights are handcrafted using common reason. We use trend (50%) to show us the way and carry + fundamental rules to stop us from riding the wrong trends.
 2.  **Only 4 of 14 runs clear the p \< 2.5 % bar.** As far as validating statistical significance of Sharpe with a t-test, we’d need more history to prove the edge for low-Sharpe, high vol rules.
 3.  **Overfitting risk on the storage/weather thresholds**. Tried to avoid it and ran only a handful of versions, but one must be vigilant about overfitting.
-4.  **We need to examine historical costs**. In general, I don’t think one tick on the third contract is too optimistic on average. But should be tested over time in different volatility and liquidity regimes.
+4.  **We need to examine historical costs**. In general, I don’t think one tick on the fourth contract is too optimistic on average. But should be tested over time in different volatility and liquidity regimes.
 5.  **We should think about some universal risk management rules**. Should we ever be short natgas if brent crude is making a limit up move? Should we ever be long if there is a historic cold snap? Probably not, more tests needed.
 
 ## Repository layout
