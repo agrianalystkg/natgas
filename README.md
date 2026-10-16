@@ -51,11 +51,11 @@ In general I believe in an **idea-first approach** - where market properties (tr
 
 **Position sizing.** Every strategy targets **1 % of account equity as daily P&L volatility** per position:
 
-$$\text{contracts}_t \;=\; \frac{\text{equity}_t \times 1\%}{\sigma_{daily,t} \times \text{multiplier}} \times \text{conviction}_t, \qquad \text{conviction}_t \in [-2,\,+2]$$
+$$\text{contracts}_t = \frac{\text{equity}_t \times 1\%}{\sigma_{daily,t} \times \text{multiplier}} \times \text{conviction}_t, \qquad \text{conviction}_t \in [-2, +2]$$
 
 Daily σ blends a fast and a slow estimate:
 
-$$\sigma_{daily,t} \;=\; 0.7\,\sigma^{\text{EWM}(32)}_t \;+\; 0.3\,\sigma^{\text{roll}(1260)}_t$$
+$$\sigma_{daily,t} = 0.7 \times \sigma^{\text{EWM}(32)}_t + 0.3 \times \sigma^{\text{roll}(1260)}_t$$
 
 where `conviction` is the signal’s strength (capped at ±2) and positions are only adjusted when the target changes by **more than 15 %** — which stops the strategy overtrading (and paying the costs that come with it).
 
@@ -97,7 +97,7 @@ The beta strategy will not be part of the portfolio; I use it to measure the oth
 
 **Signal.** (subscript = the EMA span, in days)
 
-$$\text{signal}_t = \operatorname{sign}\!\big(\mathrm{EWMA}_{16}(P_t) - \mathrm{EWMA}_{64}(P_t)\big)$$
+$$\text{signal}_t = \mathrm{sign}\left(\mathrm{EWMA}_{16}(P_t) - \mathrm{EWMA}_{64}(P_t)\right)$$
 
 **Why should it work?** We are betting that returns have a memory. One explanation is prospect theory; my own is that the *economic variables that drive prices also have a memory*. A cow that gives us a lot of milk today is likely to give us a lot of milk tomorrow as well, low stocks today tend to mean low stocks tomorrow, and so on. The more a price has the ability to influence those drivers back quickly, the less trendy the market can be.
 
@@ -121,7 +121,7 @@ I borrow this strategy from Rob Carver. It works like the beta rule, except we a
 
 **Signal.** Here $fast$ / $slow$ are the EMA spans in days (e.g. 16 / 64).
 
-$$E_t = \mathrm{EWMA}_{fast}(P_t) - \mathrm{EWMA}_{slow}(P_t), \qquad \text{conviction}_t = \operatorname{clip}\!\left(\frac{E_t \,/\, \sigma_{E,t}}{2.5},\;-2,\;+2\right)$$
+$$E_t = \mathrm{EWMA}_{fast}(P_t) - \mathrm{EWMA}_{slow}(P_t), \qquad \text{conviction}_t = \mathrm{clip}\left(\frac{E_t / \sigma_{E,t}}{2.5}, -2, +2\right)$$
 
 ![EWMAC 16/64 — market, position and equity](images/official/s02_ewmac_16_64/page1.png)
 
@@ -180,11 +180,11 @@ All in, I run four carry variants: raw and seasonally adjusted, each traded all 
 
 **Signal.** The curve is read as the price difference between the **3rd and 4th** contracts (offsets 2 and 3; we trade the 4th). They sit one month apart, so ×12 annualises the spread; dividing by the traded contract's annualised volatility turns it into the **implied Sharpe** of holding that spread:
 
-$$\text{implied } SR_t = \frac{12 \times \big(P^{(3)}_t - P^{(4)}_t\big)}{\sigma^{\text{ann}}_t}$$
+$$\text{implied } SR_t = \frac{12 \times \left(P^{(3)}_t - P^{(4)}_t\right)}{\sigma^{\text{ann}}_t}$$
 
 A 0.35 implied Sharpe gets an average position and 0.7 doubles it (capped at ±2); the sign is the sign of the spread. The seasonally adjusted variant compares the same spread with its own norm for that calendar month over the past 10 years:
 
-$$\text{adjusted spread}_t = \big(P^{(3)}_t - P^{(4)}_t\big) \;-\; \operatorname{median}_{10y}\Big(P^{(3)} - P^{(4)} \;\Big|\; \text{same month}\Big)$$
+$$\text{adjusted spread}_t = \left(P^{(3)}_t - P^{(4)}_t\right) - \mathrm{median}_{10y}\left(P^{(3)} - P^{(4)} \mid \text{same month}\right)$$
 
 ![Carry variants — cumulative return and Sharpe](images/strategies/carry_variants.png)
 
@@ -216,7 +216,7 @@ The idea: during winter, very cold weather raises gas demand and prices; mild we
 
 **Signal.**
 
-$$\text{anomaly}_t = \operatorname{SMA}_{7}\big(\text{GWDD}_t - \text{normal}\big), \qquad \text{conviction}_t = \operatorname{clip}\!\left(\frac{\text{anomaly}_t}{2\,^\circ\text{C}},\;-2,\;+2\right)$$
+$$\text{anomaly}_t = \mathrm{SMA}_7\left(\text{GWDD}_t - \text{normal}\right), \qquad \text{conviction}_t = \mathrm{clip}\left(\frac{\text{anomaly}_t}{2^\circ \text{C}}, -2, +2\right)$$
 
 I’ve validated the rule by playing with slightly longer and shorter number of days and degrees. The change in config does not materially change the backtest outcome.
 
@@ -249,7 +249,7 @@ I trade both versions: the after-release rule on Thursday’s number itself, and
 
 **Signal.**
 
-$$y_t = \frac{\text{stocks}_t - \text{stocks}_{\,t-1y}}{\text{stocks}_{\,t-1y}}, \qquad \text{conviction}_t = \operatorname{clip}\!\left(\frac{-y_t}{10\%},\;-2,\;+2\right)$$
+$$y_t = \frac{\text{stocks}_t - \text{stocks}_{t-1y}}{\text{stocks}_{t-1y}}, \qquad \text{conviction}_t = \mathrm{clip}\left(\frac{-y_t}{10\%}, -2, +2\right)$$
 
 ![Inventory variants — cumulative return (log)](images/strategies/inventory_variants.png)
 
