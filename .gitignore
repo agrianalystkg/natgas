@@ -1,0 +1,39 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# ── secrets / credentials ─────────────────────────────────────────────────────
+keys/
+*key*
+*secret*
+*password*
+*.pem
+*.p12
+
+# ── Jupyter / IDE / OS ────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ── raw price data — never committed (Barchart licence) ───────────────────────
+data/raw/
+*.pkl
+*.pickle
+*.db
+*.sqlite
+
+# ── logs / temp ───────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
+
+# ── local preview / editing artifacts (not part of the repo) ──────────────────
+README.html
+README.docx
+README_images.json
+_word_media/

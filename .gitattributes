@@ -1,0 +1,7 @@
+# normalise line endings across platforms
+* text=auto eol=lf
+
+# binaries
+*.png binary
+*.xlsx binary
+*.parquet binary
