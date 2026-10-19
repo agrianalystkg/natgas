@@ -6,7 +6,7 @@
 
 ------------------------------------------------------------------------
 
-**TL;DR.** I take a single instrument — NYMEX natural gas (NG) — and look at it from three angles: **price trend**, **curve structure (carry)** and **fundamentals** (weather, storage and fair value). Every idea is turned into a systematic, vol-targeted rule and backtested over 2000–2026 with one cost model, one rolling convention and one risk framework, so the results are directly comparable. Individually the edges are modest and fat-tailed. Combined into **one trading rule** (handcrafted weights) they give a **Sharpe of 0.53**, a **-37 % max drawdown** and a **p-value of 0.27 %** — better than any single rule on both Sharpe and drawdown.
+**TL;DR.** I take a single instrument — NYMEX natural gas (NG) — and look at it from three angles: **price trend**, **curve structure (carry)** and **fundamentals** (weather, storage and fair value). Every idea is turned into a systematic, vol-targeted rule and backtested over 2000–2026 with one cost model, one rolling convention and one risk framework, so the results are directly comparable. Individually the edges are modest and fat-tailed. Combined into **one trading rule** (handcrafted weights) they give a **Sharpe of 0.53** and a **-37 % max drawdown** — better than any single rule on both measures.
 
 > **Note on data.** Raw futures prices are scraped from Barchart and are *not* redistributed here to avoid breaking Barchart's rules. EIA storage and NOAA weather data are public. The repo ships the **results** (`results/Results.xlsx` — equity, monthly returns and the daily signal book) and the code, so the summary tables and combined-portfolio charts below can be regenerated without the price data.
 
