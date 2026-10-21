@@ -393,7 +393,6 @@ On correlations: trend rules with similar paces are highly correlated with one a
 3.  **Overfitting risk on the storage/weather thresholds**. Tried to avoid it and ran only a handful of versions, but one must be vigilant about overfitting.
 4.  **We need to examine historical costs**. In general, I don’t think one tick on the fourth contract is too optimistic on average. But should be tested over time in different volatility and liquidity regimes.
 5.  **We should think about some universal risk management rules**. Should we ever be short natgas if brent crude is making a limit up move? Should we ever be long if there is a historic cold snap? Probably not, more tests needed.
-6.  **The two FFVs are not independent.** They share the same storage/price structure and are 0.62 correlated monthly; the 7/7 split is a modest diversifier, not a second independent edge. Do not read the higher book Sharpe as a new source of return.
 
 ## Repository layout
 
