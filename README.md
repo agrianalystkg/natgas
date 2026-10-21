@@ -321,7 +321,7 @@ $$\text{strength}_t = \mathrm{clip}\left(\frac{|P_t - FFV^{mid}_t|}{(FFV^{mid}_t
 
 ### The duo
 
-![FFV — UK gas vs Brent return curves and Sharpe](images/strategies/ffv_duo.png)
+![FFV anchors — cumulative return and Sharpe](images/strategies/ffv_duo.png)
 
 | | Sharpe | Return | Vol | Max DD | 2022 | 2023 | 2025 |
 |---|---:|---:|---:|---:|---:|---:|---:|
