@@ -46,7 +46,7 @@ In general I believe in an **idea-first approach** - where market properties (tr
 | Storage | EIA Weekly Natural Gas Storage Report | Lower-48 stocks, Bcf, 1993→ |
 | Weather | NOAA | population-weighted gas-weighted degree days (GWDD) |
 | Backtester | Zipline-Reloaded + pyfolio | continuous futures via `continuous_future(root, offset=k, roll='calendar', adjustment='mul')` |
-| Cost model | in-house | roll-aware fixed slippage + per-contract commission |
+| Cost model | self-made | roll-aware fixed slippage + per-contract commission |
 
 **Universe.** A single root: **NG** (NYMEX natural gas), traded as a continuous, back-adjusted series.
 
@@ -54,7 +54,7 @@ In general I believe in an **idea-first approach** - where market properties (tr
 
 **Position sizing.** Every strategy targets **1 % of account equity as daily P&L volatility** per position:
 
-$$\text{contracts}_t = \frac{\text{equity}_t \times 1\%}{\sigma_{daily,t} \times \text{multiplier}} \times \text{conviction}_t, \qquad \text{conviction}_t \in [-2, +2]$$
+$$\text{contracts}_t = \frac{\text{equity}_t}{\sigma_{daily,t} \times \text{multiplier}} \times 1\% \times \text{conviction}_t, \qquad \text{conviction}_t \in [-2, +2]$$
 
 Daily σ blends a fast and a slow estimate:
 
