@@ -4,7 +4,7 @@
 
 | Input | Source | Notes |
 |---|---|---|
-| Futures settlement prices | Barchart | per-contract OHLC; **not redistributed** (licensing) |
+| Futures settlement prices | Barchart (account download) | per-contract OHLC; **not redistributed** (licensing) |
 | Natural-gas storage | [EIA Weekly Natural Gas Storage Report](https://www.eia.gov/naturalgas/storage/) | Lower-48 stocks, Bcf, weekly |
 | Weather | [NOAA](https://www.ncei.noaa.gov/) | daily temperatures → population-weighted gas-weighted degree days (GWDD) |
 
@@ -25,6 +25,7 @@ So the input formats are visible, a few small public-derived files are included:
 ## Not shipped
 
 The **futures price data** (Barchart) and the **ingested zipline bundle** are not
-redistributed. They are what a full re-run of `../strategies/` needs; the shipped
+redistributed. Obtain the raw files under your own Barchart account; they are what
+a full re-run of `../strategies/` needs. The shipped
 `../results/Results.xlsx` lets you rebuild every figure and table in the top-level
 README without them.

@@ -10,7 +10,7 @@
 
 **TL;DR.** I take a single instrument — NYMEX natural gas (NG) — and look at it from three angles: **price trend**, **curve structure (carry)** and **fundamentals** (weather, storage and two fair values). Every idea is turned into a systematic, vol-targeted rule and backtested over 2000–2026 with one cost model, one rolling convention and one risk framework, so the results are directly comparable. Individually the edges are modest and fat-tailed. Combined into **one trading rule** (handcrafted weights) they give a **Sharpe of 0.56** and a **-38 % max drawdown** — better than any single rule on both measures.
 
-> **Note on data.** Raw futures prices are scraped from Barchart and are *not* redistributed here to avoid breaking Barchart's rules. EIA storage and NOAA weather data are public. The repo ships the **results** (`results/Results.xlsx` — equity, monthly returns and the daily signal book) and the code, so the summary tables and combined-portfolio charts below can be regenerated without the price data.
+> **Note on data.** Raw futures prices are downloaded from Barchart through my own account, subject to Barchart's terms, and are *not* redistributed here. Reproducing the study requires your own Barchart account. EIA storage and NOAA weather data are public. The repo ships the **results** (`results/Results.xlsx` — equity, monthly returns and the daily signal book) and the code, so the summary tables and combined-portfolio charts below can be regenerated without the price data.
 
 ## Contents
 
@@ -42,7 +42,7 @@ In general I believe in an **idea-first approach** - where market properties (tr
 
 | Ingredient | Source | Notes |
 |----|----|----|
-| Futures prices | Barchart scraper | per-contract OHLC, reindexed onto zipline’s `us_futures` calendar |
+| Futures prices | Barchart (account download) | per-contract OHLC, reindexed onto zipline's `us_futures` calendar; not redistributed |
 | Storage | EIA Weekly Natural Gas Storage Report | Lower-48 stocks, Bcf, 1993→ |
 | Weather | NOAA | population-weighted gas-weighted degree days (GWDD) |
 | Backtester | Zipline-Reloaded + pyfolio | continuous futures via `continuous_future(root, offset=k, roll='calendar', adjustment='mul')` |
@@ -427,6 +427,7 @@ python strategies/EWMAC_16_64.py
 
 Re-running the *backtests* themselves requires the ingested zipline bundle
 (`cmdty_all`) built from the Barchart futures CSVs, which are not redistributed.
+You need your own Barchart account to obtain those files.
 The public EIA storage and NOAA weather inputs the fundamentals use are in
 [`data/`](data/).
 
