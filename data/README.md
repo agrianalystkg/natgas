@@ -19,7 +19,8 @@ So the input formats are visible, a few small public-derived files are included:
 | `weekly_storage_nowcast_hist.csv` | storage nowcast v1 — Monday, 3 days before the EIA print (`run_date, week_ending, pred_delta, pred_level, …`) |
 | `weekly_storage_nowcast_hist_v2.csv` | storage nowcast v2 — Thursday, 7 days before the print |
 | `weekly_storage_nowcast_hist_v3.csv` | storage nowcast v3 — Tuesday, 9 days before the print |
-| `FFV_history_natgas_brent_sim.csv` | point-in-time fair-value history used by the FFV backtest: `run_date, contract_date, contract_label, ffv_mid, ffv_lower, ffv_upper` |
+| `FFV_history_natgas_brent_sim.csv` | point-in-time fair-value history, Brent anchor: `run_date, contract_date, contract_label, ffv_mid, ffv_lower, ffv_upper` |
+| `FFV_history_natgas_ukgas_sim.csv` | point-in-time fair-value history, UK gas (NBP) anchor: same schema |
 
 ## Not shipped
 

@@ -12,7 +12,7 @@ trading rule in the book.
 | `Inventory_EIA_winter.py` | storage — after the EIA release |
 | `Inventory_Nowcast_winter.py` | storage — before the release (nowcast v1) |
 | `GasNowcast_v2.py` · `GasNowcast_v3.py` | storage — nowcast vintages v2 / v3 |
-| `backtest_ffv_range.py` | FFV — fair-value range (the model is in [`ffv/`](ffv/)) |
+| `backtest_ffv_range.py` | FFV - Brent / UK gas range, one runner (`FFV_MODEL=brent|ukgas`); models in [`ffv/`](ffv/) |
 | `backtest_combined_signals.py` | the book — combines the daily signed convictions with weights and the causal FDM |
 | `signal_book.py` | persists / loads the daily signed convictions (`Signals_Raw`, `Signals_Scaled`) |
 

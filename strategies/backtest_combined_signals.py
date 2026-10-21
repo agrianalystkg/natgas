@@ -80,7 +80,8 @@ SIGNALS = {
     # fundamentals (34%): realized EIA storage (NOT the nowcast) + weather + FFV
     'weather GWDD SMA7 Nov-Apr': 0.10,
     'inventory EIA winter': 0.10,
-    'FFV Range': 0.14,
+    'FFV ukgas': 0.07,
+    'FFV brent': 0.07,
 }
 MAX_CONVICTION = 2.0
 FDM_MIN_WINDOW = 504          # sessions before an FDM estimate is used
@@ -1139,7 +1140,7 @@ if APPEND==1:
     
     # Build config dict (unchanged)
     config = {
-        "run_name": "NG Combined Signals 50/16/34 (scaled)",
+        "run_name": "NG Combined Signals 50/16/34 FFV duo (scaled)",
         "contracts": ",".join(contracts),
         "start": str(start.date()),
         "end": str(end.date()),

@@ -2,7 +2,7 @@
 
 _Generated from `results/Results.xlsx` (`Sheet1` for the metrics, `Sheet2` for
 the t-test). One row per run; the current book is
-`NG Combined Signals 50/16/34 (scaled)`. The t-statistic is the daily Sharpe
+`NG Combined Signals 50/16/34 FFV duo (scaled)`. The t-statistic is the daily Sharpe
 times the square root of the number of observations; the p-value is the
 one-tailed normal probability. These are the same values used in the README
 tables._
@@ -23,26 +23,26 @@ tables._
 | weather GWDD SMA7 Nov-Apr | 4.33% | 11.84% | 0.42 | -38.16% | 2.17 | 1.51% | 74.2x | 0.054 |
 | inventory EIA winter | 6.48% | 16.59% | 0.46 | -43.53% | 2.40 | 0.82% | 13.8x | 0.013 |
 | inventory nowcast winter | 6.63% | 16.08% | 0.48 | -43.90% | 2.38 | 0.85% | 13.6x | 0.014 |
-| FFV Range | 9.32% | 25.48% | 0.48 | -53.81% | 2.48 | 0.65% | — | 0.031 |
 | gas nowcast v2 winter | 6.83% | 16.30% | 0.49 | -43.21% | 2.42 | 0.77% | 13.2x | 0.014 |
 | gas nowcast v3 winter | 6.91% | 16.29% | 0.49 | -41.76% | 2.44 | 0.73% | 13.9x | 0.014 |
-| NG Combined 50/16/34 (off3) | 5.35% | 12.44% | 0.48 | -31.21% | 2.50 | 0.61% | — | — |
-| NG Combined Signals 50/16/34 (scaled) | 9.13% | 20.18% | 0.53 | -36.75% | 2.78 | 0.27% | 27.6x | 0.040 |
+| FFV ukgas | 13.49% | 23.77% | 0.65 | -55.36% | 3.39 | 0.04% | — | 0.035 |
+| FFV brent | 11.06% | 23.26% | 0.57 | -62.47% | 2.95 | 0.16% | — | 0.041 |
+| NG Combined Signals 50/16/34 FFV duo (scaled) | 9.76% | 20.09% | 0.56 | -37.65% | 2.94 | 0.17% | 26.0x | 0.040 |
 
 ## Current book
 
-`NG Combined Signals 50/16/34 (scaled)` — trend 50 % / carry 16 % / fundamentals
-34 %, with FFV at 14 %. The book combines the daily signed convictions, applies
+`NG Combined Signals 50/16/34 FFV duo (scaled)` — trend 50 % / carry 16 % / fundamentals
+34 %, with FFV split 7 % Brent / 7 % UK gas. The book combines the daily signed convictions, applies
 the causal forecast diversification multiplier, then sizes, rolls and costs the
 result exactly like a single rule.
 
 | Metric | Value |
 |---|---:|
-| Annual return (net) | 9.13% |
-| Annual volatility | 20.18% |
-| Sharpe ratio | 0.53 |
-| Max drawdown | -36.75% |
-| t-statistic | 2.78 |
-| p-value (one-tailed) | 0.27% |
-| Annual turnover | 27.6x |
+| Annual return (net) | 9.76% |
+| Annual volatility | 20.09% |
+| Sharpe ratio | 0.56 |
+| Max drawdown | -37.65% |
+| t-statistic | 2.94 |
+| p-value (one-tailed) | 0.17% |
+| Annual turnover | 26.0x |
 | Costs (Sharpe units) | 0.040 |

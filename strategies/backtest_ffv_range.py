@@ -42,7 +42,11 @@ import numpy as np
 # ══════════════════════════════════════════════════════════════════════════════
 import os as _osb
 _REPO = _osb.path.dirname(_osb.path.dirname(_osb.path.abspath(__file__)))
-FFV_CSV = _osb.path.join(_REPO, "data", "FFV_history_natgas_brent_sim.csv")
+FFV_MODEL = _osb.environ.get("FFV_MODEL", "brent").lower()
+FFV_CSV = _osb.path.join(_REPO, "data", f"FFV_history_natgas_{FFV_MODEL}_sim.csv")
+CHART_DIR = _osb.path.join(
+    _REPO, "images", "official",
+    "s17_ffv_brent" if FFV_MODEL == "brent" else "s18_ffv_ukgas")
 
 FFV = pd.read_csv(FFV_CSV)
 FFV['run_date'] = pd.to_datetime(FFV['run_date'], dayfirst=False)
@@ -86,14 +90,14 @@ entry_mode = 'mid'       # 'mid'  -> dislocation from ffv_mid by mae_entry*mae
 use_ffv_slope = True     # FFV-direction filter on/off (False = drop the slope condition)
 band_buffer = 0.0        # extra MAE beyond the band required for a 'band' entry
 
-tradedcontract = 2       # THIRD contract (portfolio sweet spot)
+tradedcontract = 3       # FOURTH contract (same as the rest of the book)
 signalcontract = tradedcontract
 
 position_changing_treshold = 0.15
 enable_commission = True
 enable_slippage = True
 
-fast_ma = "FFV RANGE"
+fast_ma = f"FFV RANGE {FFV_MODEL}"
 slow_ma = f"{mae_entry:g}xmae signal, ts {mae_strength:g}xmae, max ts {max_ts:g}"
 
 RESULTS_XLSX = _osb.path.join(_REPO, "results", "Results.xlsx")
@@ -362,10 +366,13 @@ def analyze(context, perf):
             contracts[0], tradedcontract, start=returns.index[0])
     else:
         price_series, price_label = None, ''
-    rc.page1(returns, positions, perf, price_series, ts_scaled, price_label)
-    plt.show()
-    rc.page2(returns, (t_stat, p_value, rolling_sr, ub, lb))
-    plt.show()
+    _osb.makedirs(CHART_DIR, exist_ok=True)
+    fig1 = rc.page1(returns, positions, perf, price_series, ts_scaled, price_label)
+    fig1.savefig(_osb.path.join(CHART_DIR, "page1.png"), dpi=130)
+    plt.close(fig1)
+    fig2 = rc.page2(returns, (t_stat, p_value, rolling_sr, ub, lb))
+    fig2.savefig(_osb.path.join(CHART_DIR, "page2.png"), dpi=130)
+    plt.close(fig2)
 
 
 

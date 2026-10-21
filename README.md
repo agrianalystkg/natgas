@@ -4,9 +4,11 @@
 
 *Veljko Perovic — commodity analyst. Built 2026.*
 
+*Version 2 — 21 October 2026. The FFV sleeve now runs two fair-value models — Brent and UK gas — at 7 % each. The UK gas anchor cuts the 2022 FFV loss from −33 % to −14 % and lifts the book's Sharpe from 0.53 to 0.56. The other 16 rules are unchanged.*
+
 ------------------------------------------------------------------------
 
-**TL;DR.** I take a single instrument — NYMEX natural gas (NG) — and look at it from three angles: **price trend**, **curve structure (carry)** and **fundamentals** (weather, storage and fair value). Every idea is turned into a systematic, vol-targeted rule and backtested over 2000–2026 with one cost model, one rolling convention and one risk framework, so the results are directly comparable. Individually the edges are modest and fat-tailed. Combined into **one trading rule** (handcrafted weights) they give a **Sharpe of 0.53** and a **-37 % max drawdown** — better than any single rule on both measures.
+**TL;DR.** I take a single instrument — NYMEX natural gas (NG) — and look at it from three angles: **price trend**, **curve structure (carry)** and **fundamentals** (weather, storage and two fair values). Every idea is turned into a systematic, vol-targeted rule and backtested over 2000–2026 with one cost model, one rolling convention and one risk framework, so the results are directly comparable. Individually the edges are modest and fat-tailed. Combined into **one trading rule** (handcrafted weights) they give a **Sharpe of 0.56** and a **-38 % max drawdown** — better than any single rule on both measures.
 
 > **Note on data.** Raw futures prices are scraped from Barchart and are *not* redistributed here to avoid breaking Barchart's rules. EIA storage and NOAA weather data are public. The repo ships the **results** (`results/Results.xlsx` — equity, monthly returns and the daily signal book) and the code, so the summary tables and combined-portfolio charts below can be regenerated without the price data.
 
@@ -281,27 +283,54 @@ We make four different versions. The first one excludes any forecast — we just
 
 ---
 
-## 17. FFV — trading the fundamental fair value
+## 17. FFV — two fair values
 
-A fundamentals model produces a **fair-value range** for gas — a mid, a lower and an upper band — from storage, crude (Brent) and the price twelve months ago. When the market is **rich** (above the mid) while the mid is **falling**, we short; when it is **cheap** (below the mid) while the mid is **rising**, we go long; otherwise we are flat. Conviction scales with the distance from the mid, in units of the band width (mid to lower), capped at 3 band-widths.
+A fundamentals model produces a **fair-value range** for gas — a mid, a lower and an upper band — from storage, the price twelve months ago and one exogenous gas price. That last choice matters: **Brent** is the global crude benchmark, **UK gas (NBP)** is the European gas benchmark. They produce different mids and different signals, so we run both.
 
-The fair value is simulated **point-in-time**: each day uses only information knowable then — monthly fundamentals through the lagged month, the latest EIA weekly stocks, weather via the nowcast, and the crude forward curve for forward formation months. The model coefficients are refitted each month on a rolling 120-month window, and every forecast is one step ahead — so the fit is out-of-sample too.
+The fair value is simulated **point-in-time**: each day uses only information knowable then — monthly fundamentals through the lagged month, the latest EIA weekly stocks, weather via the nowcast, and the relevant forward curve for forward formation months. The model coefficients are refitted each month on a rolling 120-month window, and every forecast is one step ahead — so the fit is out-of-sample too. The trading rule is the same for both:
 
 $$\text{strength}_t = \mathrm{clip}\left(\frac{|P_t - FFV^{mid}_t|}{(FFV^{mid}_t - FFV^{lower}_t)\times 3},\ -3,\ +3\right)$$
 
-![FFV — market, position and equity](images/official/s17_ffv/page1.png)
+### Brent anchor
+
+![FFV Brent — market, position and equity](images/official/s17_ffv_brent/page1.png)
 
 | Metric | Value | Metric | Value |
 |---|---|---|---|
-| Annual return (net) | 9.32% | Lower tail ratio (1/30 ÷ 4.43) | 3.981 |
-| Annual volatility | 25.48% | Upper tail ratio (99/70 ÷ 4.43) | 4.603 |
-| Sharpe ratio | 0.48 | Stability (R² of log-equity) | 0.72 |
-| Sortino ratio | 0.56 | t-statistic | 2.482 |
-| Max drawdown | -53.81% | p-value (one-tailed) | 0.65% |
-| Average drawdown | -21.84% | Beta to 16/64 benchmark | 0.028 |
-| Skew (monthly) | 0.45 | Alpha vs benchmark (ann.) | 11.82% |
+| Annual return (net) | 11.06% | Lower tail ratio (1/30 ÷ 4.43) | 3.847 |
+| Annual volatility | 23.26% | Upper tail ratio (99/70 ÷ 4.43) | 4.240 |
+| Sharpe ratio | 0.57 | Stability (R² of log-equity) | 0.65 |
+| Sortino ratio | 0.73 | t-statistic | 2.950 |
+| Max drawdown | -62.47% | p-value (one-tailed) | 0.16% |
+| Average drawdown | -21.48% | Beta to 16/64 benchmark | 0.085 |
+| Skew (monthly) | 0.74 | Alpha vs benchmark (ann.) | 12.29% |
 
-**My read.** Standalone FFV is volatile (25.5 % annualised), but it is essentially uncorrelated with everything else — monthly correlation vs trend −4 %, vs carry +2 %, vs the rest of the book close to 0. It is the true diversifier in the book.
+**My read.** Brent is the weaker of the two standalone rules (Sharpe 0.57), and it is the one that struggled most in 2022-2023: the war in Ukraine decoupled European gas from crude, and a fair value anchored on Brent kept saying "rich" while gas kept rising. That is the weakness the second model is meant to address.
+
+### UK gas anchor
+
+![FFV UK gas — market, position and equity](images/official/s18_ffv_ukgas/page1.png)
+
+| Metric | Value | Metric | Value |
+|---|---|---|---|
+| Annual return (net) | 13.49% | Lower tail ratio (1/30 ÷ 4.43) | 3.880 |
+| Annual volatility | 23.77% | Upper tail ratio (99/70 ÷ 4.43) | 4.313 |
+| Sharpe ratio | 0.65 | Stability (R² of log-equity) | 0.67 |
+| Sortino ratio | 0.88 | t-statistic | 3.386 |
+| Max drawdown | -55.36% | p-value (one-tailed) | 0.04% |
+| Average drawdown | -19.63% | Beta to 16/64 benchmark | 0.172 |
+| Skew (monthly) | 2.83 | Alpha vs benchmark (ann.) | 14.54% |
+
+**My read.** UK gas is the stronger standalone rule (Sharpe 0.65, alpha 14.5 %), and it is much less fragile in 2022: the loss falls from -33 % for Brent to -14 %. This is the "EU gas instead of crude" test the previous version said was worth running.
+
+### The duo
+
+| | Sharpe | Return | Vol | Max DD | 2022 | 2023 | 2025 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| FFV Brent | 0.57 | 11.06 % | 23.26 % | -62.47 % | -33.4 % | -23.6 % | +19.3 % |
+| FFV UK gas | 0.65 | 13.49 % | 23.77 % | -55.36 % | -14.3 % | +0.6 % | +37.7 % |
+
+The two signal streams are **0.62 correlated** monthly. That is not a second independent edge — it is one fair-value idea with two anchors — but it is different enough to split the 14 % FFV sleeve **7 % Brent / 7 % UK gas**. The book's Sharpe rises from 0.53 to 0.56, alpha from 5.4 % to 5.9 %, and the 2022 FFV drag is roughly halved.
 
 **Three things stand out:**
 
@@ -315,7 +344,7 @@ $$\text{strength}_t = \mathrm{clip}\left(\frac{|P_t - FFV^{mid}_t|}{(FFV^{mid}_t
 
 Each rule produces a daily **signed conviction** (direction × strength). We put the convictions on a common scale, combine them with the rule weights below, then apply a **forecast diversification multiplier (FDM)** and cap the result at ±2. That is the book's conviction; it is sized, rolled and costed exactly like a single rule (1 % vol target, 15 % rebalance hysteresis, the same cost model).
 
-The FDM is the inverse of the square root of the weighted average forecast correlation, $1/\sqrt{w^\top \Sigma w}$, re-estimated monthly on an expanding window (strictly causal). Its latest estimate is **≈1.78×**: the rules are genuinely diversifying, and the FDM re-levers the combined forecast back to roughly single-rule risk — so the book runs at about the same volatility as one strategy (~20 %) rather than the lower volatility naive diversification would give.
+The FDM is the inverse of the square root of the weighted average forecast correlation, $1/\sqrt{w^\top \Sigma w}$, re-estimated monthly on an expanding window (strictly causal). Its latest estimate is **≈1.77×**: the rules are genuinely diversifying, and the FDM re-levers the combined forecast back to roughly single-rule risk — so the book runs at about the same volatility as one strategy (~20 %) rather than the lower volatility naive diversification would give.
 
 | Trading style | Rule | Weight |
 |---|---|---|
@@ -331,9 +360,10 @@ The FDM is the inverse of the square root of the weighted average forecast corre
 | Carry | adjusted all-year | 3 % |
 | Fundamentals | GWDD weather (SMA7, Nov–Apr) | 10 % |
 | Fundamentals | EIA storage (realised) | 10 % |
-| Fundamentals | FFV Range | 14 % |
+| Fundamentals | FFV Brent | 7 % |
+| Fundamentals | FFV UK gas | 7 % |
 
-Per trading style split: **50 % trend / 16 % carry / 34 % fundamentals**. Trend shows the direction; carry and fundamentals stop us riding the wrong trend. Mid-paced trend rules get more because they balance positive skew with lower turnover; summer carry gets more than all-year carry because it has a clearer seasonal edge; FFV gets the largest fundamental weight because it is the least correlated rule.
+Per trading style split: **50 % trend / 16 % carry / 34 % fundamentals**. Trend shows the direction; carry and fundamentals stop us riding the wrong trend. Mid-paced trend rules get more because they balance positive skew with lower turnover; summer carry gets more than all-year carry because it has a clearer seasonal edge; the FFV sleeve gets the largest fundamental weight because it is the least correlated rule, and it is split 7/7 between the two anchors.
 
 ![Book — equity and drawdown](images/portfolio/equity_drawdown.png)
 
@@ -343,28 +373,29 @@ Per trading style split: **50 % trend / 16 % carry / 34 % fundamentals**. Trend 
 
 | Metric | Value | Metric | Value |
 |---|---|---|---|
-| Annual return (net) | 9.13% | Lower tail ratio (1/30 ÷ 4.43) | 2.523 |
-| Annual volatility | 20.18% | Upper tail ratio (99/70 ÷ 4.43) | 2.433 |
-| Sharpe ratio | 0.53 | Stability (R² of log-equity) | 0.85 |
-| Sortino ratio | 0.71 | t-statistic | 2.779 |
-| Max drawdown | -36.75% | p-value (one-tailed) | 0.27% |
-| Average drawdown | -16.45% | Gross Sharpe (before costs) | 0.57 |
-| Skew (monthly) | 0.87 | Costs (Sharpe units) | 0.04 |
-|  |  | Annual turnover | 27.6x / yr |
-|  |  | Beta to 16/64 benchmark | 0.800 |
-|  |  | Alpha vs benchmark (ann.) | 5.40% |
+| Annual return (net) | 9.76% | Lower tail ratio (1/30 ÷ 4.43) | 2.407 |
+| Annual volatility | 20.09% | Upper tail ratio (99/70 ÷ 4.43) | 2.392 |
+| Sharpe ratio | 0.56 | Stability (R² of log-equity) | 0.86 |
+| Sortino ratio | 0.77 | t-statistic | 2.935 |
+| Max drawdown | -37.65% | p-value (one-tailed) | 0.17% |
+| Average drawdown | -16.18% | Gross Sharpe (before costs) | 0.60 |
+| Skew (monthly) | 0.89 | Costs (Sharpe units) | 0.04 |
+|  |  | Annual turnover | 26.0x / yr |
+|  |  | Beta to 16/64 benchmark | 0.817 |
+|  |  | Alpha vs benchmark (ann.) | 5.94% |
 
-**My read.** Biggest drawdown comes from 2009-2012. After 2024 we are also not making money, although losses are capped. 2016-2019 things also did not look great, but we had a nice streak after that in 2020-2023. The question is whether our rules deteriorated in quality or the market cycle has just been very unfavourable. Part of what kept us from making money in 2022 is sadly our FFV rule; the war in Ukraine and the explosion of EU gas prices may have changed the market dynamics, so a fair value leaning on EU gas prices rather than crude oil might be worth testing.
+**My read.** The biggest drawdown is the 2016-2018 stretch (-37.7 %, trough September 2018), and 2016-2019 was broadly flat before the strong 2020-2023 run. 2024-2026 is the current weak patch: 2024 -6.9 %, 2025 -3.9 %, and a -32 % drawdown in 2026. The open question is whether the rules have deteriorated or the market cycle is simply unfavourable. The UK gas FFV is the clearest improvement: the FFV sleeve lost -33 % in 2022 on the Brent anchor and -14 % on UK gas, and the book's 2022 return rises from +8.8 % to +11.8 %. That is the "EU gas instead of crude" test the previous version suggested, and it worked.
 
-On correlations: trend rules with similar paces are highly correlated with one another, as are the carry rules. The storage rule has a medium correlation with trend, partly confirming that storage drives weekly gas returns; FFV is the true diversifier, most correlated with weather.
+On correlations: trend rules with similar paces are highly correlated with one another, as are the carry rules. The storage rule has a medium correlation with trend, partly confirming that storage drives weekly gas returns. The two FFVs are 0.62 correlated with each other; both are weakly correlated with trend and weather, with Brent the more independent of the two. That is where most of the diversification comes from.
 
 ## Things to consider
 
 1.  **Portfolio construction.** I did not use an optimiser. The weights are handcrafted with the results visible - trend (50 %) sets the direction, carry and fundamentals stop us riding the wrong trends - and I kept the degrees of freedom low: family weights, not per-rule fitted coefficients. I accept the weights are not out-of-sample; optimising 13 weights on 26 years of one market would overfit far more.
-2.  **Only 6 of the 17 strategy runs clear the p < 2.5 % bar.** As far as validating statistical significance of Sharpe with a t-test, we'd need more history to prove the edge for low-Sharpe, high vol rules.
+2.  **Only 7 of the 18 strategy runs clear the p < 2.5 % bar.** As far as validating statistical significance of Sharpe with a t-test, we'd need more history to prove the edge for low-Sharpe, high vol rules.
 3.  **Overfitting risk on the storage/weather thresholds**. Tried to avoid it and ran only a handful of versions, but one must be vigilant about overfitting.
 4.  **We need to examine historical costs**. In general, I don’t think one tick on the fourth contract is too optimistic on average. But should be tested over time in different volatility and liquidity regimes.
 5.  **We should think about some universal risk management rules**. Should we ever be short natgas if brent crude is making a limit up move? Should we ever be long if there is a historic cold snap? Probably not, more tests needed.
+6.  **The two FFVs are not independent.** They share the same storage/price structure and are 0.62 correlated monthly; the 7/7 split is a modest diversifier, not a second independent edge. Do not read the higher book Sharpe as a new source of return.
 
 ## Repository layout
 
@@ -426,10 +457,10 @@ The combined charts above are the argument; these are the receipts. Each strateg
 | Weather — realised GWDD | [![Weather — realised GWDD — page 1](images/official/thumb/s12_weather_page1.png)](images/official/s12_weather/page1.png) | [![Weather — realised GWDD — page 2](images/official/thumb/s12_weather_page2.png)](images/official/s12_weather/page2.png) |
 | Inventory — after the EIA release | [![Inventory — after the EIA release — page 1](images/official/thumb/s13_inventory_eia_page1.png)](images/official/s13_inventory_eia/page1.png) | [![Inventory — after the EIA release — page 2](images/official/thumb/s13_inventory_eia_page2.png)](images/official/s13_inventory_eia/page2.png) |
 | Inventory — before the release (nowcast) | [![Inventory — before the release (nowcast) — page 1](images/official/thumb/s14_inventory_nowcast_page1.png)](images/official/s14_inventory_nowcast/page1.png) | [![Inventory — before the release (nowcast) — page 2](images/official/thumb/s14_inventory_nowcast_page2.png)](images/official/s14_inventory_nowcast/page2.png) |
-
 | Inventory — nowcast v2 | [![Inventory — nowcast v2 — page 1](images/official/thumb/s15_gas_nowcast_v2_page1.png)](images/official/s15_gas_nowcast_v2/page1.png) | [![Inventory — nowcast v2 — page 2](images/official/thumb/s15_gas_nowcast_v2_page2.png)](images/official/s15_gas_nowcast_v2/page2.png) |
 | Inventory — nowcast v3 | [![Inventory — nowcast v3 — page 1](images/official/thumb/s16_gas_nowcast_v3_page1.png)](images/official/s16_gas_nowcast_v3/page1.png) | [![Inventory — nowcast v3 — page 2](images/official/thumb/s16_gas_nowcast_v3_page2.png)](images/official/s16_gas_nowcast_v3/page2.png) |
-| FFV — fair value range | [![FFV — fair value range — page 1](images/official/thumb/s17_ffv_page1.png)](images/official/s17_ffv/page1.png) | [![FFV — fair value range — page 2](images/official/thumb/s17_ffv_page2.png)](images/official/s17_ffv/page2.png) |
+| FFV — Brent anchor | [![FFV Brent — page 1](images/official/thumb/s17_ffv_brent_page1.png)](images/official/s17_ffv_brent/page1.png) | [![FFV Brent — page 2](images/official/thumb/s17_ffv_brent_page2.png)](images/official/s17_ffv_brent/page2.png) |
+| FFV — UK gas anchor | [![FFV UK gas — page 1](images/official/thumb/s18_ffv_ukgas_page1.png)](images/official/s18_ffv_ukgas/page1.png) | [![FFV UK gas — page 2](images/official/thumb/s18_ffv_ukgas_page2.png)](images/official/s18_ffv_ukgas/page2.png) |
 </details>
 <!-- GALLERY:END -->
 
