@@ -4,7 +4,7 @@
 
 *Veljko Perovic — commodity analyst. Built 2026.*
 
-*Version 2 — 21 October 2026. The FFV sleeve now runs two fair-value models — Brent and UK gas — at 7 % each. The UK gas anchor cuts the 2022 FFV loss from −33 % to −14 % and lifts the book's Sharpe from 0.53 to 0.56. The other 16 rules are unchanged.*
+*Version 2 — 21 October 2026. The FFV sleeve now runs two fair-value models — the old storage + Brent one and the new storage + UK gas one — at 7 % each. The UK gas one cuts the 2022 FFV loss from −33 % to −14 % and lifts the book's Sharpe from 0.53 to 0.56. The other 16 rules are unchanged.*
 
 ------------------------------------------------------------------------
 
@@ -126,7 +126,7 @@ I borrow this strategy from Rob Carver. It works like the beta rule, except we a
 
 $$E_t = \mathrm{EWMA}_{fast}(P_t) - \mathrm{EWMA}_{slow}(P_t), \qquad \text{conviction}_t = \mathrm{clip}\left(\frac{E_t / \sigma_{E,t}}{2.5}, -2, +2\right)$$
 
-![EWMAC 16/64 — market, position and equity](images/official/s02_ewmac_16_64/page1.png)
+![EWMAC 16/64 — cumulative return, underwater and rolling Sharpe](images/strategies/s02_ewmac_16_64.png)
 
 | Metric | Value | Metric | Value |
 |---|---|---|---|
@@ -225,7 +225,7 @@ I’ve validated the rule by playing with slightly longer and shorter number of 
 
 Natural-gas markets in winter are probably influenced by *forecasts* before a cold snap even happens. I don’t have that data, and I’m not sure trading at such a frequency would fit the portfolio I’m building, so this trades the realised anomaly.
 
-![Weather — market, position and equity](images/official/s12_weather/page1.png)
+![Weather — cumulative return, underwater and rolling Sharpe](images/strategies/s12_weather.png)
 
 | Metric | Value | Metric | Value |
 |---|---|---|---|
@@ -293,8 +293,6 @@ $$\text{strength}_t = \mathrm{clip}\left(\frac{|P_t - FFV^{mid}_t|}{(FFV^{mid}_t
 
 ### Brent anchor
 
-![FFV Brent — market, position and equity](images/official/s17_ffv_brent/page1.png)
-
 | Metric | Value | Metric | Value |
 |---|---|---|---|
 | Annual return (net) | 11.06% | Lower tail ratio (1/30 ÷ 4.43) | 3.847 |
@@ -309,8 +307,6 @@ $$\text{strength}_t = \mathrm{clip}\left(\frac{|P_t - FFV^{mid}_t|}{(FFV^{mid}_t
 
 ### UK gas anchor
 
-![FFV UK gas — market, position and equity](images/official/s18_ffv_ukgas/page1.png)
-
 | Metric | Value | Metric | Value |
 |---|---|---|---|
 | Annual return (net) | 13.49% | Lower tail ratio (1/30 ÷ 4.43) | 3.880 |
@@ -324,6 +320,8 @@ $$\text{strength}_t = \mathrm{clip}\left(\frac{|P_t - FFV^{mid}_t|}{(FFV^{mid}_t
 **My read.** UK gas is the stronger standalone rule (Sharpe 0.65, alpha 14.5 %), and it is much less fragile in 2022: the loss falls from -33 % for Brent to -14 %. This is the "EU gas instead of crude" test the previous version said was worth running.
 
 ### The duo
+
+![FFV — UK gas vs Brent return curves and Sharpe](images/strategies/ffv_duo.png)
 
 | | Sharpe | Return | Vol | Max DD | 2022 | 2023 | 2025 |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -402,7 +400,7 @@ On correlations: trend rules with similar paces are highly correlated with one a
     repo/
     ├── README.md                     ← you are here
     ├── images/
-    │   ├── official/                 ← per-strategy "page 1 / page 2" charts (from the backtests)
+    │   ├── official/                 ← full "page 1 / page 2" report pages (archive)
     │   ├── strategies/               ← combined family charts (EWMAC, carry, inventory) + beta
     │   └── portfolio/                ← the book: equity + drawdown, correlation, rolling Sharpe
     ├── results/
@@ -440,7 +438,9 @@ The public EIA storage and NOAA weather inputs the fundamentals use are in
 The combined charts above are the argument; these are the receipts. Each strategy has two pages — **page 1** (price vs position exposure, equity with the top-5 drawdowns shaded, daily returns, rolling Sharpe) and **page 2** (t-test rolling Sharpe, underwater curve, monthly heatmap, annual returns, monthly distribution). Click a thumbnail for the full-size chart.
 
 <details markdown="1">
-<summary><b>Open the chart gallery</b></summary>
+<summary><b>Open the full report archive</b></summary>
+
+The full four-panel report pages are kept here as an archive. The sections above use the simpler cumulative return / underwater / rolling Sharpe cut.
 
 | Strategy | Page 1 — market & equity | Page 2 — risk & distribution |
 |---|---|---|
